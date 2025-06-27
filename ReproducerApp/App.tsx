@@ -1,20 +1,24 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setCount(c => c + 1), 10);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <NewAppScreen templateFileName="App.tsx" />
+      <Text style={styles.text}>{count}</Text>
+      <ScrollView>
+        {Array.from({ length: 200 }, (_, i) => (
+          <Text key={i} style={styles.text}>
+            {i + 1}
+          </Text>
+        ))}
+      </ScrollView>
     </View>
   );
 }
@@ -22,6 +26,9 @@ function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  text: {
+    fontSize: 50,
   },
 });
 

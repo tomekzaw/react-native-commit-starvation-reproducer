@@ -1,0 +1,44 @@
+diff --git a/ReactCommon/react/featureflags/ReactNativeFeatureFlags.cpp b/ReactCommon/react/featureflags/ReactNativeFeatureFlags.cpp
+index 6c9593434f215076d169498df95ed795d5707758..6998eaf33410456f8ba3b84b984fa39ad4be5efc 100644
+--- a/ReactCommon/react/featureflags/ReactNativeFeatureFlags.cpp
++++ b/ReactCommon/react/featureflags/ReactNativeFeatureFlags.cpp
+@@ -139,7 +139,7 @@ bool ReactNativeFeatureFlags::enableResourceTimingAPI() {
+ }
+ 
+ bool ReactNativeFeatureFlags::enableSynchronousStateUpdates() {
+-  return getAccessor().enableSynchronousStateUpdates();
++  return true;
+ }
+ 
+ bool ReactNativeFeatureFlags::enableViewCulling() {
+diff --git a/ReactCommon/react/renderer/mounting/ShadowTree.cpp b/ReactCommon/react/renderer/mounting/ShadowTree.cpp
+index e366682ebe4af9b3d488f948b0751399b7eeb9e6..4a6d90cc83eed0423ba4058774b26e2632d70dc3 100644
+--- a/ReactCommon/react/renderer/mounting/ShadowTree.cpp
++++ b/ReactCommon/react/renderer/mounting/ShadowTree.cpp
+@@ -239,6 +239,7 @@ CommitStatus ShadowTree::commit(
+ 
+   while (true) {
+     attempts++;
++    LOG(INFO) << attempts;
+ 
+     auto status = tryCommit(transaction, commitOptions);
+     if (status != CommitStatus::Failed) {
+@@ -247,7 +248,7 @@ CommitStatus ShadowTree::commit(
+ 
+     // After multiple attempts, we failed to commit the transaction.
+     // Something internally went terribly wrong.
+-    react_native_assert(attempts < 1024);
++    react_native_assert(attempts < 100);
+   }
+ }
+ 
+@@ -301,6 +302,9 @@ CommitStatus ShadowTree::tryCommit(
+   telemetry.willLayout();
+   telemetry.setAsThreadLocal();
+   newRootShadowNode->layoutIfNeeded(&affectedLayoutableNodes);
++  if (commitOptions.source == CommitSource::React) {
++    usleep(16000); // simulate long layout calculation for complex trees
++  }
+   telemetry.unsetAsThreadLocal();
+   telemetry.didLayout(static_cast<int>(affectedLayoutableNodes.size()));
+ 
